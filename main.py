@@ -3,15 +3,51 @@
 import os
 import shutil
 import re
+import pathlib
+from datetime import datetime
+import time
+
+def dateConversion(timestamp):
+	return datetime.utcfromtimestamp(timestamp).strftime('%Y%m%d_%H%M%S')
+
+def changeFileName(dir):
+	photo_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.heic'}
+	video_extensions = {'.mp4', '.mov', '.avi', '.mkv', '.flv'}
+	for path in pathlib.Path(dir).iterdir():
+		info = path.stat()
+		ctime = info.st_ctime
+		mtime = info.st_mtime
+
+		if mtime <= ctime:
+			date_created = dateConversion(mtime)
+		else:
+			date_created = dateConversion(ctime)
+
+		file_name, file_extension = os.path.splitext(path)
+		file_extension = file_extension.lower()
+
+		if file_extension in photo_extensions or file_extension in video_extensions:
+			new_filename = date_created + file_extension
+			os.rename(path, new_filename)
+
+			print(f"{file_name} -> {new_filename}")
+
+		else:
+			#new_dir = os.path.join(dir, 'others')
+			#file_path = os.path.join(dir, file_name)
+			#if not os.path.exists(new_dir):
+		#		os.makedirs(new_dir)
+		#	shutil.move(path, os.path.join(file_path, file_name))
+			pass
 
 # Function for moving files (photos and videos) from one directory to a new sorted by Year/month directory
 def sort_photos(source_dir, target_dir):
 	# This pattern is used to parse the file name for the date pattern used in this program
 	# ^[A-Z]{3,4}_ this pattern is used to ignore the first 3-4 characters in the file name
 	# (\d{4})(\d{2})(\d{2}) This pattern is obtaining the date in format YYYYMMDD
-	date_pattern = re.compile(r"^[A-Z]{3,4}_(\d{4})(\d{2})(\d{2})")
+	date_pattern = re.compile(r"(\d{4})(\d{2})(\d{2})")
 
-	photo_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.bmp'}
+	photo_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.heic'}
 	video_extensions = {'.mp4', '.mov', '.avi', '.mkv', '.flv'}
 
 	# Checks if target directory entered exists or not, if not will create the target directory.
@@ -26,6 +62,15 @@ def sort_photos(source_dir, target_dir):
 		# print the file name and the created full path to display as a checkpoint.
 		print(filename)
 		print(file_path)
+
+		# split the filename on the '.' like filename.jpg -> filename, .jpg and save '.jpg' as file_extension
+		file_extension = os.path.splitext(filename)[1].lower()
+
+		if file_extension not in photo_extensions and file_extension not in video_extensions:
+			other_dir = os.path.join(source_dir, 'others')
+			if not os.path.exists(other_dir):
+				os.makedirs(other_dir)
+			shutil.move(file_path, os.path.join(other_dir, filename))
 
 		# Check if the fullpath is a file and not a directory.
 		if os.path.isfile(file_path):
@@ -46,7 +91,7 @@ def sort_photos(source_dir, target_dir):
 					os.makedirs(year_month_dir)
 
 				# split the filename on the '.' like filename.jpg -> filename, .jpg and save '.jpg' as file_extension
-				file_extension = os.path.splitext(filename)[1].lower()
+				#file_extension = os.path.splitext(filename)[1].lower()
 
 				if file_extension in photo_extensions:
 					photos_dir = os.path.join(year_month_dir, 'photos')
@@ -71,14 +116,28 @@ def sort_photos(source_dir, target_dir):
 
 				else:
 					print(f"Skipping {filename} (unknown file type)")
+					
 
 			else:
 				print(f"No date found in {filename}")
 
 def main():
-	source_dir = "/home/derek/Pictures/Isaac Photo Backups"
+	source_dir = "/home/derek/Documents/WorkSpace/Python_Projects/PhotoSort/sourcepic"
 	target_dir = "/home/derek/Documents/WorkSpace/Python_Projects/PhotoSort/targetpic"
+
+	print("")
+	print("Begin renaming files.")
+
+	changeFileName(source_dir)
+
+	print("Done renaming files.")
+	print("")
+	time.sleep(2)
+	print("Begin photo sort.")
+	print("")
+
 	sort_photos(source_dir, target_dir)
+	print("Done.")
 
 
 if __name__ == '__main__':

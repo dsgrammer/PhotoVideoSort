@@ -2,7 +2,8 @@
 A program for automating sorting photos and videos into year/month/photo or year/month/video directories
 
 The current implementation of this program has the following constraints:
-1. It parses the file name for date format YYYYMMDD
-2. It can only process files that look like 'PXL_20240525_022448208.jpg' where the first 3-4 characters are ignored and the next 8 characters are parsed as the date.
+1. first renames all files according to the timestamp in their metadata format YYYYMMDD_HHMMSS + the file extension.
+2. It parses the file name for date format YYYYMMDD
+3. Any files without a photo or video file extension are "quarantined" to a folder called other in the source directory. (This folder is created by the script)
 
-Future versions will look to change how the date is managed by utilizing photo metadata to provide more robust coverage for files from different devices where file names do not fit the required format.
+Future implementations will strive to make a standalone gui application or cli tool out of this script.

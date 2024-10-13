@@ -7,46 +7,43 @@ import pathlib
 from datetime import datetime
 import time
 
-def dateConversion(timestamp):
+def dateConversion(timestamp) -> datetime:
 	return datetime.utcfromtimestamp(timestamp).strftime('%Y%m%d_%H%M%S')
 
-def changeFileName(dir):
-	photo_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.heic'}
-	video_extensions = {'.mp4', '.mov', '.avi', '.mkv', '.flv'}
+def changeFileName(dir) -> None:
+	photo_extensions: set[str] = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.heic'}
+	video_extensions: set[str] = {'.mp4', '.mov', '.avi', '.mkv', '.flv'}
+
 	for path in pathlib.Path(dir).iterdir():
 		info = path.stat()
-		ctime = info.st_ctime
-		mtime = info.st_mtime
+		ctime: float = info.st_ctime
+		mtime: float = info.st_mtime
 
 		if mtime <= ctime:
-			date_created = dateConversion(mtime)
+			date_created: datetime = dateConversion(mtime)
 		else:
-			date_created = dateConversion(ctime)
+			date_created: datetime = dateConversion(ctime)
 
 		file_name, file_extension = os.path.splitext(path)
 		file_extension = file_extension.lower()
 
 		if file_extension in photo_extensions or file_extension in video_extensions:
-			new_filename = date_created + file_extension
+			new_filename: str = date_created + file_extension
 			os.rename(path, new_filename)
 
 			print(f"{file_name} -> {new_filename}")
 
 		else:
-			#new_dir = os.path.join(dir, 'others')
-			#file_path = os.path.join(dir, file_name)
-			#if not os.path.exists(new_dir):
-		#		os.makedirs(new_dir)
-		#	shutil.move(path, os.path.join(file_path, file_name))
 			pass
 
 # Function for moving files (photos and videos) from one directory to a new sorted by Year/month directory
-def sort_photos(source_dir, target_dir):
+def sort_photos(source_dir, target_dir) -> None:
 	# This pattern is used to parse the file name for the date pattern used in this program
 	# ^[A-Z]{3,4}_ this pattern is used to ignore the first 3-4 characters in the file name
 	# (\d{4})(\d{2})(\d{2}) This pattern is obtaining the date in format YYYYMMDD
 	date_pattern = re.compile(r"(\d{4})(\d{2})(\d{2})")
 
+	# -- Can make these a constant? --
 	photo_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.heic'}
 	video_extensions = {'.mp4', '.mov', '.avi', '.mkv', '.flv'}
 

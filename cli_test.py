@@ -29,7 +29,7 @@ def main():
     time.sleep(2)
     print("Begin photo sort.")
     print("")
-    Sort.sort_photos(result1, result2)
+    Sort.sortPhotos(result1, result2)
     print("Done.")
 
 

@@ -1,4 +1,4 @@
-from pvsort import date_conversion
+from pvsort.date_conversion import DateProcessing
 from datetime import datetime
 import os
 import shutil
@@ -19,9 +19,9 @@ class Sort():
             mtime: float = info.st_mtime
 
             if mtime <= ctime:
-                date_created: datetime = date_conversion.dateConversion(mtime)
+                date_created: datetime = DateProcessing.dateConversion(mtime)
             else:
-                date_created: datetime = date_conversion.dateConversion(ctime)
+                date_created: datetime = DateProcessing.dateConversion(ctime)
 
             file_name, file_extension = os.path.splitext(path)
             file_extension = file_extension.lower()
@@ -36,7 +36,7 @@ class Sort():
                 pass
 
     # Function for moving files (photos and videos) from one directory to a new sorted by Year/month directory
-    def sort_photos(source_dir, target_dir) -> None:
+    def sortPhotos(source_dir, target_dir) -> None:
         # This pattern is used to parse the file name for the date pattern used in this program
         # ^[A-Z]{3,4}_ this pattern is used to ignore the first 3-4 characters in the file name
         # (\d{4})(\d{2})(\d{2}) This pattern is obtaining the date in format YYYYMMDD

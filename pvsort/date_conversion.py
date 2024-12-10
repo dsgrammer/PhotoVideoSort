@@ -5,4 +5,4 @@ class DateProcessing():
         pass
 
     def dateConversion(timestamp) -> datetime:
-	    return datetime.utcfromtimestamp(timestamp).strftime('%Y%m%d_%H%M%S')
+	    return datetime.fromtimestamp(timestamp).strftime('%Y%m%d_%H%M%S')

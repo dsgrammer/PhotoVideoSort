@@ -12,6 +12,7 @@ class Sort():
     def changeFileName(dir) -> None:
         photo_extensions: set[str] = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.heic'}
         video_extensions: set[str] = {'.mp4', '.mov', '.avi', '.mkv', '.flv'}
+        in_case_duplicates: int = 1
 
         for path in pathlib.Path(dir).iterdir():
             info = path.stat()
@@ -27,11 +28,12 @@ class Sort():
             file_extension = file_extension.lower()
 
             if file_extension in photo_extensions or file_extension in video_extensions:
-                new_filename: str = date_created + file_extension
+                new_filename: str = date_created + '_' + str(in_case_duplicates) + file_extension
                 os.rename(path, new_filename)
 
                 print(f"{file_name} -> {new_filename}")
                 shutil.move(f"./{new_filename}", os.path.join(dir, new_filename))
+                in_case_duplicates = in_case_duplicates + 1
             else:
                 pass
 

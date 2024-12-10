@@ -1,141 +1,42 @@
-
-# Import Libraries
-import os
-import shutil
-import re
-import pathlib
-from datetime import datetime
+from argparse import ArgumentParser, Namespace
 import time
-
-def dateConversion(timestamp) -> datetime:
-	return datetime.utcfromtimestamp(timestamp).strftime('%Y%m%d_%H%M%S')
-
-def changeFileName(dir) -> None:
-	photo_extensions: set[str] = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.heic'}
-	video_extensions: set[str] = {'.mp4', '.mov', '.avi', '.mkv', '.flv'}
-
-	for path in pathlib.Path(dir).iterdir():
-		info = path.stat()
-		ctime: float = info.st_ctime
-		mtime: float = info.st_mtime
-
-		if mtime <= ctime:
-			date_created: datetime = dateConversion(mtime)
-		else:
-			date_created: datetime = dateConversion(ctime)
-
-		file_name, file_extension = os.path.splitext(path)
-		file_extension = file_extension.lower()
-
-		if file_extension in photo_extensions or file_extension in video_extensions:
-			new_filename: str = date_created + file_extension
-			os.rename(path, new_filename)
-
-			print(f"{file_name} -> {new_filename}")
-
-		else:
-			pass
-
-# Function for moving files (photos and videos) from one directory to a new sorted by Year/month directory
-def sort_photos(source_dir, target_dir) -> None:
-	# This pattern is used to parse the file name for the date pattern used in this program
-	# ^[A-Z]{3,4}_ this pattern is used to ignore the first 3-4 characters in the file name
-	# (\d{4})(\d{2})(\d{2}) This pattern is obtaining the date in format YYYYMMDD
-	date_pattern = re.compile(r"(\d{4})(\d{2})(\d{2})")
-
-	# -- Can make these a constant? --
-	photo_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.heic'}
-	video_extensions = {'.mp4', '.mov', '.avi', '.mkv', '.flv'}
-
-	# Checks if target directory entered exists or not, if not will create the target directory.
-	if not os.path.exists(target_dir):
-		os.makedirs(target_dir)
-
-	# This is the for loop for iterating over every file in the source directory.
-	for filename in os.listdir(source_dir):
-		# Join the source directory path and the file name to create the full path of the file.
-		file_path = os.path.join(source_dir, filename)
-
-		# print the file name and the created full path to display as a checkpoint.
-		print(filename)
-		print(file_path)
-
-		# split the filename on the '.' like filename.jpg -> filename, .jpg and save '.jpg' as file_extension
-		file_extension = os.path.splitext(filename)[1].lower()
-
-		if file_extension not in photo_extensions and file_extension not in video_extensions:
-			other_dir = os.path.join(source_dir, 'others')
-			if not os.path.exists(other_dir):
-				os.makedirs(other_dir)
-			shutil.move(file_path, os.path.join(other_dir, filename))
-
-		# Check if the fullpath is a file and not a directory.
-		if os.path.isfile(file_path):
-			# if the filename is indeed a file, search for the date pattern using the predefined pattern as date_pattern.
-			match = date_pattern.search(filename)
-
-			# If the date in the file name matches the date_pattern the file will be processed. If not will output an error message.
-			if match:
-				# group(1) group(2) and group(3) correspond with the values in the date pattern (\d{4})(\d{2})(\d{2}) in order from left to right.
-				year, month, day = match.group(1), match.group(2), match.group(3)
-
-				# Using the input target directory path, create the new destination directories for the files to be moved.
-				# The year/month format will create a directory for Year and then inside it create a seperate directory for each month.
-				year_month_dir = os.path.join(target_dir, f"{year}/{month}")
-
-				# if the new target directories do not already exist, create them.
-				if not os.path.exists(year_month_dir):
-					os.makedirs(year_month_dir)
-
-				# split the filename on the '.' like filename.jpg -> filename, .jpg and save '.jpg' as file_extension
-				#file_extension = os.path.splitext(filename)[1].lower()
-
-				if file_extension in photo_extensions:
-					photos_dir = os.path.join(year_month_dir, 'photos')
-					if not os.path.exists(photos_dir):
-						os.makedirs(photos_dir)
-					# This function moves the file from the source directory (using the full path as the identifier)
-					# and creates new file paths for the new Year/Month/photos/filename
-					shutil.move(file_path, os.path.join(photos_dir, filename))
-					# Output progress
-					print(f"Moved {filename} to {year}/{month}/photos")
-
-
-				elif file_extension in video_extensions:
-					video_dir = os.path.join(year_month_dir, 'videos')
-					if not os.path.exists(video_dir):
-						os.makedirs(video_dir)
-					# This function moves the file from the source directory (using the full path as the identifier)
-					# and creates new file paths for the new Year/Month/videos/filename
-					shutil.move(file_path, os.path.join(video_dir, filename))
-					# Output progress
-					print(f"Moved {filename} to {year}/{month}/videos")
-
-				else:
-					print(f"Skipping {filename} (unknown file type)")
-					
-
-			else:
-				print(f"No date found in {filename}")
+from pvsort.sort import Sort
+from pathlib import Path
 
 def main():
-	source_dir = "/home/derek/Documents/WorkSpace/Python_Projects/PhotoSort/sourcepic"
-	target_dir = "/home/derek/Documents/WorkSpace/Python_Projects/PhotoSort/targetpic"
+    parser = ArgumentParser()
+    # group = parser.add_mutually_exclusive_group()
 
-	print("")
-	print("Begin renaming files.")
+    parser.usage = "cli_test.py [-h] sourceDir [targetDir] \n \
+        example: python3 cli_test.py 'C:/files'"
 
-	changeFileName(source_dir)
+    parser.add_argument('sourceDir', type=str, help="Source directory where the photos/videos that need to be sorted reside.")
+    # add default here for if nothing is provided make target the same as source
+    parser.add_argument('targetDir', type=str, help="Optional: Target directory where you want to sorted files. \
+                        If not provided target directory will default to source directory.", default="", nargs="?")
 
-	print("Done renaming files.")
-	print("")
-	time.sleep(2)
-	print("Begin photo sort.")
-	print("")
+    args: Namespace = parser.parse_args()
+    result1: str = args.sourceDir
+    if args.targetDir == "":
+        result2 = result1
+    else:
+        result2: str = args.targetDir
 
-	sort_photos(source_dir, target_dir)
-	print("Done.")
+    print(f"Source directory is {result1}")
+    print(f"Target directory is {result2}")
+
+    print("")
+    print("Begin renaming files.")
+    Sort.changeFileName(Path(result1))
+    print("Done renaming files.")
+    print("")
+    time.sleep(2)
+    print("Begin photo sort.")
+    print("")
+    Sort.sortPhotos(Path(result1), Path(result2))
+    print("Done.")
 
 
 if __name__ == '__main__':
 	main()
+     

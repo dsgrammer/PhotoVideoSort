@@ -66,9 +66,8 @@ class Sort():
                             in_case_duplicates = in_case_duplicates + 1
                         else:
                             pass
-
-        # add loop for directory and then nest the below inside, then test if it works as intended even if there are not subdirectories in the provided root.
-        
+                    # use recursion and call function again to go within further subdirectories
+                    Sort.changeFileName(item)
 
     # Function for moving files (photos and videos) from one directory to a new sorted by Year/month directory
     def sortPhotos(source_dir, target_dir) -> None:

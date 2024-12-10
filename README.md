@@ -1,11 +1,12 @@
 # PhotoVideoSort
 A program for automating sorting photos and videos into year/month/photo or year/month/video directories
 
-The current implementation of this program has the following constraints:
+The current implementation of this program does the following:
 1. first renames all files according to the timestamp in their metadata format YYYYMMDD_HHMMSS + the file extension.
 2. It parses the file name for date format YYYYMMDD
 3. Any files without a photo or video file extension are "quarantined" to a folder called other in the source directory. (This folder is created by the script)
 4. Latest version includes recursion when renaming files to go through every subdirectory in a hierarchy.
+5. After sort the files will be placed in directories based on the timestamp in their metadata. e.g. 2024/11/photos/photo.jpg
 
 # How to Use (Assumes you have the latest version of Python installed)
 1. Place the PhotoVideoSort directory somewhere on the same drive as the files you will sort. e.g. your C:\ drive.

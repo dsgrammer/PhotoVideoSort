@@ -7,3 +7,8 @@ The current implementation of this program has the following constraints:
 3. Any files without a photo or video file extension are "quarantined" to a folder called other in the source directory. (This folder is created by the script)
 
 Future implementations will strive to make a standalone gui application or cli tool out of this script.
+
+
+
+##
+Need to add functioality for "recurse" in case there are directories inside directories -> all the way to the bottom level

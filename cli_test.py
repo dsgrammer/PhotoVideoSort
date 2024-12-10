@@ -1,6 +1,7 @@
 from argparse import ArgumentParser, Namespace
 import time
 from pvsort.sort import Sort
+from pathlib import Path
 
 def main():
     parser = ArgumentParser()
@@ -26,13 +27,13 @@ def main():
 
     print("")
     print("Begin renaming files.")
-    Sort.changeFileName(result1)
+    Sort.changeFileName(Path(result1))
     print("Done renaming files.")
     print("")
     time.sleep(2)
     print("Begin photo sort.")
     print("")
-    Sort.sortPhotos(result1, result2)
+    Sort.sortPhotos(Path(result1), Path(result2))
     print("Done.")
 
 

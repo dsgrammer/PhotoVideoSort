@@ -3,39 +3,72 @@ from datetime import datetime
 import os
 import shutil
 import re
-import pathlib
+from pathlib import Path
 
 class Sort():
     def __init__(self) -> None:
             pass
 
-    def changeFileName(dir) -> None:
+    def changeFileName(source_dir) -> None:
         photo_extensions: set[str] = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.heic'}
         video_extensions: set[str] = {'.mp4', '.mov', '.avi', '.mkv', '.flv'}
         in_case_duplicates: int = 1
 
-        for path in pathlib.Path(dir).iterdir():
-            info = path.stat()
-            ctime: float = info.st_ctime
-            mtime: float = info.st_mtime
+        for item in source_dir.iterdir():
+            if item.is_file():
+                print(f"Prcessing File in Root: {item}")
+                # for path in pathlib.Path(item).iterdir():
+                info = item.stat()
+                ctime: float = info.st_ctime
+                mtime: float = info.st_mtime
 
-            if mtime <= ctime:
-                date_created: datetime = DateProcessing.dateConversion(mtime)
-            else:
-                date_created: datetime = DateProcessing.dateConversion(ctime)
+                if mtime <= ctime:
+                    date_created: datetime = DateProcessing.dateConversion(mtime)
+                else:
+                    date_created: datetime = DateProcessing.dateConversion(ctime)
 
-            file_name, file_extension = os.path.splitext(path)
-            file_extension = file_extension.lower()
+                file_name, file_extension = os.path.splitext(item)
+                file_extension = file_extension.lower()
 
-            if file_extension in photo_extensions or file_extension in video_extensions:
-                new_filename: str = date_created + '_' + str(in_case_duplicates) + file_extension
-                os.rename(path, new_filename)
+                if file_extension in photo_extensions or file_extension in video_extensions:
+                    new_filename: str = date_created + '_' + str(in_case_duplicates) + file_extension
+                    os.rename(item, new_filename)
 
-                print(f"{file_name} -> {new_filename}")
-                shutil.move(f"./{new_filename}", os.path.join(dir, new_filename))
-                in_case_duplicates = in_case_duplicates + 1
-            else:
-                pass
+                    print(f"{file_name} -> {new_filename}")
+                    shutil.move(f"./{new_filename}", os.path.join(source_dir, new_filename))
+                    in_case_duplicates = in_case_duplicates + 1
+                else:
+                    pass
+                
+            elif item.is_dir():
+                for file in item.iterdir():
+                    print(f"Processing file in subdirectory: {item} : {file}")
+                    if file.is_file():
+                        #for path in pathlib.Path(file).iterdir():
+                        info = file.stat()
+                        ctime: float = info.st_ctime
+                        mtime: float = info.st_mtime
+
+                        if mtime <= ctime:
+                            date_created: datetime = DateProcessing.dateConversion(mtime)
+                        else:
+                            date_created: datetime = DateProcessing.dateConversion(ctime)
+
+                        file_name, file_extension = os.path.splitext(file)
+                        file_extension = file_extension.lower()
+
+                        if file_extension in photo_extensions or file_extension in video_extensions:
+                            new_filename: str = date_created + '_' + str(in_case_duplicates) + file_extension
+                            os.rename(file, new_filename)
+
+                            print(f"{file_name} -> {new_filename}")
+                            shutil.move(f"./{new_filename}", os.path.join(source_dir, new_filename))
+                            in_case_duplicates = in_case_duplicates + 1
+                        else:
+                            pass
+
+        # add loop for directory and then nest the below inside, then test if it works as intended even if there are not subdirectories in the provided root.
+        
 
     # Function for moving files (photos and videos) from one directory to a new sorted by Year/month directory
     def sortPhotos(source_dir, target_dir) -> None:
@@ -121,3 +154,4 @@ class Sort():
 
                 else:
                     print(f"No date found in {filename}")
+

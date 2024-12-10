@@ -15,4 +15,6 @@ The current implementation of this program does the following:
 3. Then to run the scrip use the following command, replaceing the source and target directories with the directories you want to use. (If you only specify the source directory, the target directory will default to the same as the source.)
     > python3 main.py "C:\source" "C:\target"
 4. Congratulations, your photos and videos are now sorted in a nice and manageable way.
+Note: you can call a the command help function to see more information about possible parameters. (to be expanded later)
+    > python3 main.py -h
 
